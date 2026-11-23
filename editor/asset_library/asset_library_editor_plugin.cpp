@@ -1869,6 +1869,12 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
 			int page_len = 24; // API's default batch size.
 			int total_items = d["count"];
 
+			// The official store backend caps offset pagination at 1,000 items (Meilisearch maxTotalHits).
+			// Pages beyond 1,000 items return empty results. Cap the paginated items for the official repo.
+			if (repository->get_selected() == 0) {
+				total_items = MIN(total_items, 1000);
+			}
+
 			int pages = 1;
 			if (total_items > page_len) {
 				pages = Math::ceil(total_items / (float)page_len);
